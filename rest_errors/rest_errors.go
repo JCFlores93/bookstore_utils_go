@@ -6,14 +6,23 @@ import (
 )
 
 type RestErr struct {
-	Message string `json:"message"`
-	Status  int    `json:"status"`
-	Error   string `json:"error"`
-	Causes []interface{} `json:"causes"`
+	Message string        `json:"message"`
+	Status  int           `json:"status"`
+	Error   string        `json:"error"`
+	Causes  []interface{} `json:"causes"`
 }
 
 func NewError(msg string) error {
 	return errors.New(msg)
+}
+
+func NewRestError(message string, status int, err string, causes []interface{}) *RestErr {
+	return &RestErr{
+		Message: message,
+		Status:  status,
+		Error:   "bad_request",
+		Causes:  causes,
+	}
 }
 
 func NewBadRequestError(message string) *RestErr {
@@ -37,7 +46,7 @@ func NewInternalServerError(message string, err error) *RestErr {
 		Message: message,
 		Status:  http.StatusInternalServerError,
 		Error:   "internal_server_error",
-		Causes: []interface{}{err.Error()},
+		Causes:  []interface{}{err.Error()},
 	}
 	if err != nil {
 		result.Causes = append(result.Causes, err.Error())
